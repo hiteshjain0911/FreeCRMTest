@@ -24,7 +24,7 @@ jobs:
       - restore_cache:
           key: v1-mvn-deps-{{ checksum "pom.xml" }}
       - run:
-          command: node src/test/resources/test-app.js
+          command: node src/main/resources/test-app.js
           background: true
       - run: sleep 5 # sleep to allow the server some time to boot
       - run: mvn test
