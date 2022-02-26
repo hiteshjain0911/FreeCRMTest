@@ -1,31 +1,39 @@
-version: 2.1
+version: 2
 
-# Define the jobs we want to run for this project
+defaults: &defaults
+    docker:
+      - image: circleci/openjdk:11-node-browsers
+    working_directory: ~/axe-selenium-java
+
 jobs:
-  build:
-    docker:
-      - image: cimg/<language>:<version TAG>
-        auth:
-          username: mydockerhub-user
-          password: $DOCKERHUB_PASSWORD  # context / project UI env-var reference
+  dependencies:
+    <<: *defaults
     steps:
       - checkout
-      - run: echo "this is the build job"
-  test:
-    docker:
-      - image: cimg/<language>:<version TAG>
-        auth:
-          username: mydockerhub-user
-          password: $DOCKERHUB_PASSWORD  # context / project UI env-var reference
+      - restore_cache:
+          key: v1-mvn-deps-{{ checksum "pom.xml" }}
+      - run: mvn install -DskipTests
+      - save_cache:
+          key: v1-mvn-deps-{{ checksum "pom.xml" }}
+          paths:
+            - ~/.m2
+  tests:
+    <<: *defaults
     steps:
       - checkout
-      - run: echo "this is the test job"
+      - restore_cache:
+          key: v1-mvn-deps-{{ checksum "pom.xml" }}
+      - run:
+          command: node src/test/resources/test-app.js
+          background: true
+      - run: sleep 5 # sleep to allow the server some time to boot
+      - run: mvn test
 
-# Orchestrate our job run sequence
 workflows:
-  build_and_test:
+  version: 2
+  build:
     jobs:
-      - build
-      - test
-      
-      #te
+      - dependencies
+      - tests:
+          requires:
+            - dependencies
