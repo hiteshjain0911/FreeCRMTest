@@ -40,19 +40,19 @@ public class TestBase {
 	
 	public static void initialization(){
 		String browserName = prop.getProperty("browser");
+		System.out.println(browserName);
 		
 		if(browserName.equals("edge")){
-			//System.setProperty("webdriver.edge.driver", "/Users/naveenkhunteta/Downloads/chromedriver");	
+		//	System.setProperty("webdriver.chrome.driver", "/Users/naveenkhunteta/Downloads/chromedriver");
+			
 			System.setProperty("webdriver.edge.driver", "C:\\HiteshProject\\edgedriver_win64\\msedgedriver.exe");
-			driver = new EdgeDriver(); 
+			driver= new EdgeDriver();
+		//	driver = new ChromeDriver(); 
 		}
 		else if(browserName.equals("FF")){
-			System.out.println("test");
 			System.setProperty("webdriver.gecko.driver", "/Users/naveenkhunteta/Documents/SeleniumServer/geckodriver");	
-			System.out.println("test");
 			driver = new FirefoxDriver(); 
 		}
-		
 		
 		
 		e_driver = new EventFiringWebDriver(driver);
