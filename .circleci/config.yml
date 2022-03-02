@@ -6,5 +6,9 @@ jobs:
     steps:
       - checkout
       - run: 
-      name: Running tests
-      Command: Make test
+      Name: Running Test
+      command: 
+      echo Running Test
+      mkdir -p /tmp/test-result
+      make test
+      
