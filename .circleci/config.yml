@@ -1,20 +1,39 @@
-version: 2.1
-jobs:
-  bar:
-    machine: true
-    steps:
-      - checkout
-      - run:
-          command: echo "building"
-      - run:
-          command: echo "testing"
-workflows:
-  workflow1:
-    jobs:
-      - bar:
-          pre-steps:
-            - run:
-                command: echo "install custom dependency"
-          post-steps:
-            - run:
-                command: echo "upload artifact to s3"
+    1. # Java:CircleCI 2.0 configuration file## Check https://circleci.com/docs/2.0/language-javascript/ for more details#version: 2
+        jobs:
+          build:
+            docker:
+              # specify the version you desire here      
+              - image: circleci/openjdk:8-jdk-browsers
+              - image: selenium/standalone-chrome:4.0.0-beta-1-20210215
+        
+              # Specify service dependencies here if necessarygit      # CircleCI maintains a library of pre-built images      # documented at https://circleci.com/docs/2.0/circleci-images/      # - image: circleci/mongo:3.4.4    working_directory: ~/repo
+        
+            steps:
+              - checkout
+              - setup_remote_docker
+              # Download and cache dependencies      
+              - restore_cache:
+                  keys:
+                    - v1-dependencies-{{ checksum "pom.xml" }}
+                    # fallback to using the latest cache if no exact match is found            - v1-dependencies-
+        
+              - run:
+                  name: Execute maven test
+                  command: mvn clean test
+              - store_test_results:
+                  path: target/surefire-reports/Selenium Test Automation Test Suite
+              - store_artifacts:
+                  path: target/surefire-reports/TestReport.html
+        
+        
+              - save_cache:
+                  paths:
+                    - ~/.m2
+                  key: v1-dependencies-{{ checksum "pom.xml" }}
+        
+              - run:
+                  name: create docker network
+                  command: docker network create grid
+        
+             # - run:      #    name: install selenium standalone      #    command: $ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-chrome:4.0.0-beta-1-20210215      #- run:       #   name: install selenium-node       #   command: docker run -d --rm --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-chrome:3.11.0      # - run:      #     name: install-npm      #     command: npm install      # run tests!      # - run:      #    name: run tests      #    command: node index.js
+
